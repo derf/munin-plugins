@@ -1,0 +1,28 @@
+#!/bin/sh
+
+#%# family=auto
+#%# capabilities=autoconf
+
+if [ "$1" = "autoconf" ]; then
+	if [ -e /sys/devices/platform/sunxi-i2c.0/i2c-0/0-0034/axp20-supplyer.28/power_supply ]; then
+		echo yes
+	else
+		echo no
+	fi
+	exit 0
+fi
+
+if [ "$1" = "config" ]; then
+
+	echo 'graph_title BananaPi PM Voltage'
+	echo 'graph_vlabel Volt'
+	echo 'graph_category sensors'
+	echo 'voltage.label System Voltage'
+	echo 'voltage.cdef voltage,1000000,/'
+
+	exit 0
+fi
+
+echo voltage.value "$(cat /sys/class/power_supply/ac/voltage_now)"
+
+exit 0
