@@ -1,0 +1,50 @@
+#!/bin/sh
+
+#%# family=auto
+#%# capabilities=autoconf
+
+if [ "$1" = "autoconf" ]; then
+	if [ -e /sys/bus/i2c/devices/0-0034/pmu/temp ]; then
+		echo yes
+	else
+		echo no
+	fi
+	exit 0
+fi
+
+if [ "$1" = "config" ]; then
+
+	echo 'graph_title Temperatures'
+	echo 'graph_vlabel Degrees Celsius'
+	echo 'graph_category sensors'
+	echo 'cpu.label CPU'
+	echo 'pmu.label PMU'
+
+	exit 0
+fi
+
+TEMP=$(( $(cat /sys/class/hwmon/hwmon0/temp1_input) / 1000 ))
+
+if [ "$TEMP" -lt 0 ]; then
+	return 0
+fi
+
+if [ "$TEMP" -gt 100000 ]; then
+	return 0
+fi
+
+echo cpu.value "$TEMP"
+
+TEMP=$(( $(cat /sys/bus/i2c/devices/0-0034/pmu/temp) / 1000 ))
+
+if [ "$TEMP" -lt 0 ]; then
+	return 0
+fi
+
+if [ "$TEMP" -gt 100000 ]; then
+	return 0
+fi
+
+echo pmu.value "$TEMP"
+
+exit 0

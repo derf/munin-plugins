@@ -1,10 +1,14 @@
 #!/bin/sh
 
+# Note: Use
+# <https://github.com/derf/munin-plugins/blob/0743dbfacd1add7592f72bd8584461646d84a248/bananapi/bananapi_pm_current>
+# for legacy 3.4.x kernels with sunxi patches
+
 #%# family=auto
 #%# capabilities=autoconf
 
 if [ "$1" = "autoconf" ]; then
-	if [ -e /sys/devices/platform/sunxi-i2c.0/i2c-0/0-0034/axp20-supplyer.28/power_supply ]; then
+	if [ -e /sys/bus/i2c/devices/0-0034/ac/amperage ]; then
 		echo yes
 	else
 		echo no
@@ -17,12 +21,21 @@ if [ "$1" = "config" ]; then
 	echo 'graph_title BananaPi PM Current'
 	echo 'graph_vlabel Ampere'
 	echo 'graph_category sensors'
-	echo 'current.label System Current'
-	echo 'current.cdef current,1000000,/'
+	echo 'ac.label AC'
+	echo 'ac.cdef ac,1000000,/'
+	echo 'bat.label Battery'
+	echo 'bat.cdef bat,1000000,/'
+	echo 'chg.label Charger'
+	echo 'chg.cdef chg,1000000,/'
+	echo 'vbus.label VBus'
+	echo 'vbus.cdef vbus,1000000,/'
 
 	exit 0
 fi
 
-echo current.value "$(cat /sys/class/power_supply/ac/current_now)"
+echo ac.value "$(cat /sys/bus/i2c/devices/0-0034/ac/amperage)"
+echo bat.value "$(cat /sys/bus/i2c/devices/0-0034/battery/amperage)"
+echo chg.value "$(cat /sys/bus/i2c/devices/0-0034/charger/amperage)"
+echo vbus.value "$(cat /sys/bus/i2c/devices/0-0034/vbus/amperage)"
 
 exit 0
